@@ -2,7 +2,7 @@
   'use strict';
   const M=window.DailyOperations,S=window.DailyOperationsSource,store=S.createStore();
   const $=id=>document.getElementById(id);
-  let selected='',followLatest=true;
+  let selected='',followLatest=true,customPeriod=false;
   const mealNames={BF:'Breakfast',LN:'Lunch',DN:'Dinner',Extra:'รายการเสริม'};
   const fmt=(v,digits=0)=>v===null||v===undefined?'—':new Intl.NumberFormat('th-TH',{maximumFractionDigits:digits,minimumFractionDigits:digits}).format(v);
   const money=v=>fmt(v,2);
@@ -112,6 +112,26 @@
     const dates=M.chartData(s,selected,count,'occupancy').dates;
     $('chartRangeCaption').textContent=selected?`${count} วัน · ${dateLabel(dates[0])} – ${dateLabel(selected)} · ช่วงเดียวกันทั้ง 5 หมวด`:'เลือกช่วง 7 / 14 / 30 วัน · รอข้อมูลวันแรก';
   }
+  function renderPeriod(s){
+    if(!customPeriod){
+      $('totalStart').value=selected?selected.slice(0,7)+'-01':'';
+      $('totalEnd').value=selected;
+    }
+    const start=$('totalStart').value,end=$('totalEnd').value;
+    const period=M.summarizePeriod(s,start,end);
+    $('totalPeriodStatus').textContent=!period
+      ? start&&end?'วันเริ่มต้นต้องไม่อยู่หลังวันสิ้นสุด':'เลือกวันเริ่มต้นและวันสิ้นสุด'
+      : `ช่วง ${dateLabel(start)} ถึง ${dateLabel(end)} · รายได้มีทั้งสองฝั่ง ${period.revenueDays}/${period.days} วัน · มีจำนวนคน ${period.staffDays}/${period.days} วัน`;
+    if(!period){
+      $('totalPeriodMetrics').replaceChildren();$('totalPeriodTable').replaceChildren();return;
+    }
+    metrics('totalPeriodMetrics',[
+      {label:'รายได้รวมตามช่วง',value:money(period.revenue),note:'บาท · นับเฉพาะวันที่มีรายได้ทั้งสองฝั่ง'},
+      {label:'กำลังคนสะสม',value:fmt(period.staff),note:'คน-วัน · รวมจำนวนคนรายวัน ไม่ใช่จำนวนคนไม่ซ้ำ'}
+    ]);
+    table('totalPeriodTable',['วันที่','BD & Milk (บาท)','Manpower (บาท)','Total (บาท)','จำนวนคน'],
+      period.rows.map(r=>[dateLabel(r.date),money(r.feeding),money(r.manpower),money(r.total),fmt(r.staff)]),[1,2,3,4]);
+  }
   function render(){
     const s=store.snapshot||M.snapshot({});
     if(!s.dates.length)selected='';
@@ -166,6 +186,15 @@
     table('feedTable',['รายการ','จำนวน','ยอดเงินที่กรอก (บาท)'],d.feeding.map(r=>[r.item,fmt(r.qty),money(r.unit_price)]),[1,2]);
     metrics('manpowerMetrics',[{label:'บุคลากร',value:fmt(d.manpower),note:'คน · รวมหน่วยงานที่กรอก'},{label:'รายได้หน่วยงาน',value:money(d.sectionRevenue),note:'บาท · แสดงแยก ไม่บวกซ้ำรายได้อาหาร'},{label:'รายได้ต่อคน',value:money(d.sectionRevenue!==null&&d.manpower>0?d.sectionRevenue/d.manpower:null),note:'บาท/คน · จากข้อมูลหน่วยงานที่กรอก'}]);
     table('manpowerTable',['หน่วยงาน','BF (บาท)','LN (บาท)','DN (บาท)','Other (บาท)','รวมตามที่กรอก','บุคลากร'],d.manpowerRows.map(r=>[r.section,money(r.bf_revenue),money(r.ln_revenue),money(r.dn_revenue),money(r.other),money(r.total_revenue),fmt(r.manpower)]),[1,2,3,4,5,6]);
+    const revenue=M.combinedRevenue(d);
+    metrics('totalMetrics',[
+      {label:'BD & Milk',value:money(revenue.feeding),note:'บาท · รวม BD และ Milk Feeding'},
+      {label:'Manpower',value:money(revenue.manpower),note:'บาท · รายได้รวมทุกหน่วยงาน'},
+      {label:'Total',value:money(revenue.total),note:revenue.total===null?'รอยอดเงินจากทั้งสองหมวด':'บาท · BD & Milk + Manpower'},
+      {label:'จำนวนคนของวัน',value:fmt(d.manpower),note:'คน · จาก Manpower คอลัมน์ G'}
+    ]);
+    renderPeriod(s);
+    multiTrend('totalRevenueTrend',M.chartData(s,selected,+$('rangeSelect').value,'combinedRevenue'));
     metrics('feedbackMetrics',[{label:'บันทึกทั้งหมด',value:selected?fmt(d.feedback.length):'—',note:'รายการที่บันทึกในวันที่เลือก'},{label:'รอดำเนินการ / ติดตาม',value:selected?fmt(d.feedback.filter(r=>r.status!=='Resolved').length):'—',note:'รายการที่ยังไม่ระบุ Resolved'},{label:'Resolved',value:selected?fmt(d.feedback.filter(r=>r.status==='Resolved').length):'—',note:'รายการที่ระบุว่าแก้ไขแล้ว'}]);
     table('feedbackTable',['หน่วยงาน','รายละเอียด','สถานะ'],d.feedback.map(r=>[r.section,r.feedback,r.status]),[],[1]);
   }
@@ -199,6 +228,8 @@
   $('latestButton').addEventListener('click',()=>{followLatest=true;render();});
   $('refreshButton').addEventListener('click',refresh);
   $('printButton').addEventListener('click',()=>window.print());
+  ['totalStart','totalEnd'].forEach(id=>$(id).addEventListener('change',()=>{customPeriod=true;renderPeriod(store.snapshot||M.snapshot({}));}));
+  $('totalReset').addEventListener('click',()=>{customPeriod=false;renderPeriod(store.snapshot||M.snapshot({}));});
   render();refresh();
   setInterval(()=>{if(!document.hidden)refresh();},30000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});

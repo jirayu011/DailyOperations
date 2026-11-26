@@ -114,6 +114,31 @@
   function comparison(s,d,key){const p=priorDay(d);if(!s.dates.includes(p))return null;const a=day(s,d)[key],b=day(s,p)[key];return a!==null&&b>0?(a-b)/b*100:null;}
   function windowDates(s,d,n){const start=new Date(d+'T00:00:00Z');start.setUTCDate(start.getUTCDate()-n+1);const lower=start.toISOString().slice(0,10);return s.dates.filter(v=>v>=lower&&v<=d);}
   function chooseDate(s,selected,followLatest){return followLatest||!selected?s.dates.at(-1)||'':selected;}
+  function combinedRevenue(d){
+    const feeding=sum(d.feeding.map(r=>r.unit_price)),manpower=d.sectionRevenue;
+    return {feeding,manpower,total:feeding===null||manpower===null?null:feeding+manpower};
+  }
+  function summarizePeriod(s,start,end){
+    start=date(start);end=date(end);
+    if(!start||!end||start>end)return null;
+    const rowsByDate=new Map();
+    function add(records,source){
+      for(const r of records){
+        if(r.date<start||r.date>end)continue;
+        if(!rowsByDate.has(r.date))rowsByDate.set(r.date,{feeding:[],manpower:[]});
+        rowsByDate.get(r.date)[source].push(r);
+      }
+    }
+    add(s.feeding,'feeding');add(s.manpower,'manpower');
+    const rows=[...rowsByDate.keys()].sort().map(date=>{
+      const {feeding,manpower}=rowsByDate.get(date);
+      const revenue=combinedRevenue({feeding,sectionRevenue:sum(manpower.map(r=>r.total_revenue))});
+      return {date,...revenue,staff:sum(manpower.map(r=>r.manpower))};
+    });
+    const revenue=rows.filter(r=>r.total!==null),staff=rows.filter(r=>r.staff!==null);
+    const days=(Date.parse(end)-Date.parse(start))/86400000+1;
+    return {rows,days,revenueDays:revenue.length,staffDays:staff.length,revenue:sum(revenue.map(r=>r.total)),staff:sum(staff.map(r=>r.staff))};
+  }
   function chartData(s,end,count,kind,metric='qty',section='all'){
     const dates=[];
     if(end){const dt=new Date(end+'T00:00:00Z');dt.setUTCDate(dt.getUTCDate()-count+1);for(let i=0;i<count;i++){dates.push(dt.toISOString().slice(0,10));dt.setUTCDate(dt.getUTCDate()+1);}}
@@ -124,7 +149,8 @@
     if(kind==='feeding')return {dates,unit:metric==='amount'?'บาท':'ชุด / ถุง',series:['BD','Milk Feeding'].map(item=>line(item,d=>sum(d.feeding.filter(r=>r.item===item).map(r=>metric==='amount'?r.unit_price:r.qty))))};
     if(kind==='trays')return {dates,unit:metric==='amount'?'บาท':'ชุด',series:[...new Set(TRAY_ITEMS.map(t=>t.category))].map(category=>line(({Morgue:'อาหารเคารพศพ','Soft Meal':'อาหารฝึกกลืน Soft Meal','Dysphagia Diet':'อาหารฝึกกลืน'})[category]||category,d=>sum(d.trayRows.filter(r=>TRAY_ITEMS.find(t=>t.label===r.item)?.category===category).map(r=>metric==='amount'?r.price:r.qty))))};
     if(kind==='sectionRevenue'||kind==='people')return {dates,unit:kind==='people'?'คน':'บาท',series:[line(kind==='people'?'Manpower':'Revenue',d=>sum(d.manpowerRows.filter(r=>section==='all'||r.section===section).map(r=>kind==='people'?r.manpower:r.total_revenue)))]};
+    if(kind==='combinedRevenue')return {dates,unit:'บาท',series:[line('BD & Milk',d=>combinedRevenue(d).feeding),line('Manpower',d=>combinedRevenue(d).manpower),line('Total',d=>combinedRevenue(d).total)]};
     return {dates,unit:'',series:[]};
   }
-  return {IPD_TYPES,TRAY_ITEMS,trayInput,trayReport,tabs,number,date,csv,sum,snapshot,day,priorDay,comparison,windowDates,chooseDate,chartData};
+  return {IPD_TYPES,TRAY_ITEMS,trayInput,trayReport,tabs,number,date,csv,sum,snapshot,day,priorDay,comparison,windowDates,chooseDate,chartData,combinedRevenue,summarizePeriod};
 });

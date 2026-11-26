@@ -6,10 +6,10 @@
   <meta name="description" content="GHCC–BHQ รายงานประจำวัน จำนวนอาหาร รายได้ เตียง และบุคลากรจาก Google Sheets">
   <title>GHCC–BHQ | Daily Operations</title>
   <link rel="icon" href="assets/icons/ghcc-premium-favicon.png?v=1">
-  <link rel="stylesheet" href="css/daily-operations.css?v=12">
-  <script defer src="js/daily-operations-model.js?v=10"></script>
+  <link rel="stylesheet" href="css/daily-operations.css?v=13">
+  <script defer src="js/daily-operations-model.js?v=11"></script>
   <script defer src="js/daily-operations-source.js?v=10"></script>
-  <script defer src="js/daily-operations-app.js?v=11"></script>
+  <script defer src="js/daily-operations-app.js?v=12"></script>
 </head>
 <body>
   <img class='print-background' src='assets/ghcc-culinary-constellation-bg.png' alt='' aria-hidden='true'>
@@ -37,6 +37,7 @@
     <button type="button" role="tab" id="tab-trays" aria-controls="view-trays" aria-selected="false" tabindex="-1" data-view="trays">Tray & Revenue</button>
     <button type="button" role="tab" id="tab-feeding" aria-controls="view-feeding" aria-selected="false" tabindex="-1" data-view="feeding">BD & Milk</button>
     <button type="button" role="tab" id="tab-manpower" aria-controls="view-manpower" aria-selected="false" tabindex="-1" data-view="manpower">Manpower</button>
+    <button type="button" role="tab" id="tab-total" aria-controls="view-total" aria-selected="false" tabindex="-1" data-view="total">Total</button>
     <button type="button" role="tab" id="tab-feedback" aria-controls="view-feedback" aria-selected="false" tabindex="-1" data-view="feedback">Feedback</button>
   </nav>
   <div class="report-body" id="reportBody" aria-busy="true">
@@ -48,7 +49,7 @@
       <section class="panel glass" data-overview-chart="ipd"><div class="panel-header"><div><h3>2) Summary Report IPD Service by Type</h3><p>เปรียบเทียบ TH / Child / West / Halal / JAP · รวมทุกมื้อในแต่ละวัน</p></div><span class="unit">ถาด</span></div><div class="chart multi-chart" id="ipdOverview"></div></section>
       <section class="panel glass" data-overview-chart="feeding"><div class="panel-header"><div><h3>3) Revenue BD and Milk Bag</h3><p>เปรียบเทียบ BD และ Milk Feeding · ยอดเงินที่กรอกในชีตโดยตรง ไม่คูณเพิ่ม</p></div><label class="chart-control">แสดง <select id="feedingChartMetric" aria-label="ตัวชี้วัดกราฟ BD และ Milk"><option value="amount">ยอดเงิน (บาท)</option><option value="qty">จำนวน</option></select></label></div><div class="chart multi-chart" id="feedingOverview"></div></section>
       <section class="panel glass" data-overview-chart="trays"><div class="panel-header"><div><h3>4) Number of Tray (IPD)</h3><p>เปรียบเทียบประเภทอาหาร · รวมเช้า กลางวัน เย็นของแต่ละประเภท</p></div><label class="chart-control">แสดง <select id="trayChartMetric" aria-label="ตัวชี้วัดกราฟ Tray"><option value="qty">จำนวน QTY</option><option value="amount">ยอดเงิน Price (บาท)</option></select></label></div><div class="chart multi-chart" id="trayTrend"></div></section>
-      <section class="panel glass" data-overview-chart="manpower"><div class="panel-header"><div><h3>5) Revenue Vs Manpower</h3><p>เปรียบเทียบรายได้กับบุคลากรในช่วงเดียวกัน · แยกแกนบาทและคน</p></div><label class="chart-control">หน่วยงาน <select id="chartSection" aria-label="หน่วยงานของกราฟ Revenue vs Manpower"><option value="all">รวมทุกหน่วยงาน</option><option>IPD</option><option>Room Service</option><option>Doctor Lounge</option><option>Function</option><option>Nutrition</option><option>Employee Rest.</option><option>Food Plaza</option><option>Kitchen</option><option>Admin</option></select></label></div><div class="chart-grid"><div><h4 class="chart-subheading">Revenue · บาท</h4><div class="chart multi-chart" id="sectionRevenueOverview"></div></div><div><h4 class="chart-subheading">Manpower · คน</h4><div class="chart multi-chart" id="peopleOverview"></div></div></div></section>
+      <section class="panel glass" data-overview-chart="manpower"><div class="panel-header"><div><h3>5) Revenue Vs Manpower</h3><p>เปรียบเทียบรายได้กับบุคลากรในช่วงเดียวกัน · แยกแกนบาทและคน</p></div><label class="chart-control">หน่วยงาน <select id="chartSection" aria-label="หน่วยงานของกราฟ Revenue vs Manpower"><option value="all">รวมทุกหน่วยงาน</option><option>IPD</option><option>Room Service</option><option>Doctor Lounge</option><option>Function</option><option>Nutrition IMM</option><option>Employee Rest.</option><option>Food Plaza</option><option>Kitchen</option><option>Admin</option></select></label></div><div class="chart-grid"><div><h4 class="chart-subheading">Revenue · บาท</h4><div class="chart multi-chart" id="sectionRevenueOverview"></div></div><div><h4 class="chart-subheading">Manpower · คน</h4><div class="chart multi-chart" id="peopleOverview"></div></div></div></section>
       <div class="chart-grid"><section class="panel glass"><div class="panel-header"><div><h3>จำนวนถาดแยกมื้อ</h3><p>จาก Tray & Revenue · วันที่เลือก</p></div></div><div id="mealBars"></div></section><section class="panel glass"><div class="panel-header"><div><h3>วันนี้เทียบวันก่อนหน้า</h3><p>เทียบวันปฏิทินก่อนหน้า · ไม่ใช้วันที่ห่างกันแทน</p></div></div><div id="comparison"></div></section></div>
     </section>
     <section id="view-beds" role="tabpanel" aria-labelledby="tab-beds" hidden><div class="section-heading"><div><h2>Bed & Occupancy</h2><p>อัตราครองเตียง = Occupied ÷ Functional</p></div></div><div class="metric-grid" id="bedMetrics"></div><section class="panel glass"><div class="panel-header"><h3>แนวโน้มอัตราครองเตียง</h3><span class="unit">%</span></div><div class="chart" id="bedTrend"></div></section><section class="panel glass"><h3>ข้อมูลเตียงของวันที่เลือก</h3><div id="bedTable"></div></section></section>
@@ -64,6 +65,22 @@
     </section>
     <section id="view-feeding" role="tabpanel" aria-labelledby="tab-feeding" hidden><div class="section-heading"><div><h2>BD & Milk Feeding</h2><p>จำนวน แยก Blenderized และ Milk Feeding</p></div></div><div id="feedMetrics" class="metric-grid three"></div><section class="panel glass"><h3>รายละเอียด BD & Milk</h3><div id="feedTable"></div></section></section>
     <section id="view-manpower" role="tabpanel" aria-labelledby="tab-manpower" hidden><div class="section-heading"><div><h2>Revenue vs Manpower</h2><p>รายได้และบุคลากรตามข้อมูลของแต่ละหน่วยงาน</p></div></div><div id="manpowerMetrics" class="metric-grid three"></div><section class="panel glass"><h3>รายได้และบุคลากรแต่ละหน่วยงาน</h3><div id="manpowerTable"></div></section></section>
+    <section id="view-total" role="tabpanel" aria-labelledby="tab-total" hidden>
+      <div class="section-heading"><div><h2>รายได้รวมรายวัน</h2><p>BD &amp; Milk + Manpower · รวมเฉพาะยอดเงินของวันเดียวกัน</p></div></div>
+      <div id="totalMetrics" class="metric-grid three"></div>
+      <section class="panel glass" aria-labelledby="totalPeriodTitle">
+        <h3 id="totalPeriodTitle">สรุปตามช่วงวันที่</h3>
+        <div class="total-period-controls">
+          <label for="totalStart">วันเริ่มต้น <input type="date" id="totalStart"></label>
+          <label for="totalEnd">วันสิ้นสุด <input type="date" id="totalEnd"></label>
+          <button class="button" id="totalReset" type="button">ตั้งแต่ต้นเดือนถึงวันที่เลือก</button>
+        </div>
+        <p id="totalPeriodStatus" role="status"></p>
+        <div id="totalPeriodMetrics" class="metric-grid three"></div>
+        <div id="totalPeriodTable"></div>
+      </section>
+      <section class="panel glass"><div class="panel-header"><h3>แนวโน้มรายได้รวม</h3><span class="unit">บาท</span></div><div id="totalRevenueTrend" class="chart multi-chart"></div></section>
+    </section>
     <section id="view-feedback" role="tabpanel" aria-labelledby="tab-feedback" hidden><div class="section-heading"><div><h2>Operation Feedback</h2><p>ปัญหา ข้อเสนอแนะ และสถานะการติดตามของวันที่เลือก</p></div></div><div id="feedbackMetrics" class="metric-grid three"></div><section class="panel glass"><h3>บันทึกการปฏิบัติงาน</h3><div id="feedbackTable"></div></section></section>
   </div>
   <footer><span>GHCC–BHQ · Daily Operations</span><span>ช่องว่าง = ยังไม่มีข้อมูล · 0 = ยืนยันว่าไม่มีรายการ</span></footer>
