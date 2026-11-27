@@ -189,8 +189,8 @@
     const revenue=M.combinedRevenue(d);
     metrics('totalMetrics',[
       {label:'BD & Milk',value:money(revenue.feeding),note:'บาท · รวม BD และ Milk Feeding'},
-      {label:'Manpower',value:money(revenue.manpower),note:'บาท · รายได้รวมทุกหน่วยงาน'},
-      {label:'Total',value:money(revenue.total),note:revenue.total===null?'รอยอดเงินจากทั้งสองหมวด':'บาท · BD & Milk + Manpower'},
+      {label:'รายได้ต่อวัน',value:money(revenue.manpower),note:'บาท · รายได้รวมทุกหน่วยงาน'},
+      {label:'BD+Milk + รายได้ต่อวัน',value:money(revenue.total),note:revenue.total===null?'รอยอดเงินจากทั้งสองหมวด':'บาท · รวมยอดเงินจากทั้งสองหมวด'},
       {label:'จำนวนคนของวัน',value:fmt(d.manpower),note:'คน · จาก Manpower คอลัมน์ G'}
     ]);
     renderPeriod(s);
