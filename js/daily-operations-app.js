@@ -129,7 +129,7 @@
       {label:'รายได้รวมตามช่วง',value:money(period.revenue),note:'บาท · นับเฉพาะวันที่มีรายได้ทั้งสองฝั่ง'},
       {label:'กำลังคนสะสม',value:fmt(period.staff),note:'คน-วัน · รวมจำนวนคนรายวัน ไม่ใช่จำนวนคนไม่ซ้ำ'}
     ]);
-    table('totalPeriodTable',['วันที่','BD & Milk (บาท)','Manpower (บาท)','Total (บาท)','จำนวนคน'],
+    table('totalPeriodTable',['วันที่','BD & Milk (บาท)','รายได้ต่อวัน (บาท)','BD+Milk + รายได้ต่อวัน (บาท)','จำนวนคน'],
       period.rows.map(r=>[dateLabel(r.date),money(r.feeding),money(r.manpower),money(r.total),fmt(r.staff)]),[1,2,3,4]);
   }
   function render(){
