@@ -13,7 +13,7 @@
 #totalPeriodStatus{color:var(--muted)}
 #totalPeriodTable th:not(:first-child),#totalPeriodTable td.num{text-align:center}
 #totalMetrics{grid-template-columns:repeat(4,minmax(0,1fr))}
-#totalPeriodMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+#totalPeriodMetrics,#manpowerMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:760px){#totalMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media print{.total-period-controls{display:none}}
 

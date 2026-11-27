@@ -184,7 +184,7 @@
     multiTrend('trayAmountDetail',M.chartData(s,selected,+$('rangeSelect').value,'trays','amount'));
     metrics('feedMetrics',[...['BD','Milk Feeding'].map(item=>({label:item,value:fmt(M.sum(d.feeding.filter(r=>r.item===item).map(r=>r.qty))),note:'จำนวนตามที่กรอก'})),{label:'รายการที่บันทึก',value:selected?fmt(d.feeding.length):'—',note:'จำนวนแถวของวันที่เลือก'}]);
     table('feedTable',['รายการ','จำนวน','ยอดเงินที่กรอก (บาท)'],d.feeding.map(r=>[r.item,fmt(r.qty),money(r.unit_price)]),[1,2]);
-    metrics('manpowerMetrics',[{label:'บุคลากร',value:fmt(d.manpower),note:'คน · รวมหน่วยงานที่กรอก'},{label:'รายได้หน่วยงาน',value:money(d.sectionRevenue),note:'บาท · แสดงแยก ไม่บวกซ้ำรายได้อาหาร'},{label:'รายได้ต่อคน',value:money(d.sectionRevenue!==null&&d.manpower>0?d.sectionRevenue/d.manpower:null),note:'บาท/คน · จากข้อมูลหน่วยงานที่กรอก'}]);
+    metrics('manpowerMetrics',[{label:'บุคลากร',value:fmt(d.manpower),note:'คน · รวมหน่วยงานที่กรอก'},{label:'รายได้หน่วยงาน',value:money(d.sectionRevenue),note:'บาท · แสดงแยก ไม่บวกซ้ำรายได้อาหาร'}]);
     table('manpowerTable',['หน่วยงาน','BF (บาท)','LN (บาท)','DN (บาท)','Other (บาท)','รวมตามที่กรอก','บุคลากร'],d.manpowerRows.map(r=>[r.section,money(r.bf_revenue),money(r.ln_revenue),money(r.dn_revenue),money(r.other),money(r.total_revenue),fmt(r.manpower)]),[1,2,3,4,5,6]);
     const revenue=M.combinedRevenue(d);
     metrics('totalMetrics',[
