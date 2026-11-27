@@ -69,10 +69,10 @@
     const hidden=hiddenSeries.get(id),host=$(id),legend=el('div',undefined,'chart-legend');
     series.forEach((s,i)=>{
       const button=el('button',undefined,'legend-button'),swatch=el('span',undefined,'legend-swatch');
-      button.type='button';button.setAttribute('aria-pressed',String(!hidden.has(s.label)));swatch.style.background=chartColors[i%chartColors.length];
+      button.type='button';button.setAttribute('aria-pressed',String(!hidden.has(s.label)));swatch.style.background=s.color??chartColors[i%chartColors.length];
       button.append(swatch,el('span',s.label));button.addEventListener('click',()=>{if(hidden.has(s.label))hidden.delete(s.label);else hidden.add(s.label);multiTrend(id,config);});legend.append(button);
     });
-    const active=series.map((s,i)=>({...s,color:chartColors[i%chartColors.length]})).filter(s=>!hidden.has(s.label));
+    const active=series.map((s,i)=>({...s,color:s.color??chartColors[i%chartColors.length]})).filter(s=>!hidden.has(s.label));
     const values=active.flatMap(s=>s.values).filter(v=>v!==null);
     const plot=el('div',undefined,'chart-scroll');
     if(values.length){
@@ -194,7 +194,12 @@
       {label:'จำนวนคนของวัน',value:fmt(d.manpower),note:'คน · จาก Manpower คอลัมน์ G'}
     ]);
     renderPeriod(s);
-    multiTrend('totalRevenueTrend',M.chartData(s,selected,+$('rangeSelect').value,'combinedRevenue'));
+    const totalTrend=M.chartData(s,selected,+$('rangeSelect').value,'combinedRevenue');
+    [
+      ['totalFeedingTrend','BD & Milk'],
+      ['totalDailyIncomeTrend','รายได้ต่อวัน'],
+      ['totalRevenueTrend','BD+Milk + รายได้ต่อวัน']
+    ].forEach(([id,label],i)=>multiTrend(id,{...totalTrend,series:[{...totalTrend.series[i],label,color:chartColors[i]}]}));
     metrics('feedbackMetrics',[{label:'บันทึกทั้งหมด',value:selected?fmt(d.feedback.length):'—',note:'รายการที่บันทึกในวันที่เลือก'},{label:'รอดำเนินการ / ติดตาม',value:selected?fmt(d.feedback.filter(r=>r.status!=='Resolved').length):'—',note:'รายการที่ยังไม่ระบุ Resolved'},{label:'Resolved',value:selected?fmt(d.feedback.filter(r=>r.status==='Resolved').length):'—',note:'รายการที่ระบุว่าแก้ไขแล้ว'}]);
     table('feedbackTable',['หน่วยงาน','รายละเอียด','สถานะ'],d.feedback.map(r=>[r.section,r.feedback,r.status]),[],[1]);
   }

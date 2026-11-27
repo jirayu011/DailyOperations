@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="css/daily-operations.css?v=14">
   <script defer src="js/daily-operations-model.js?v=11"></script>
   <script defer src="js/daily-operations-source.js?v=10"></script>
-  <script defer src="js/daily-operations-app.js?v=14"></script>
+  <script defer src="js/daily-operations-app.js?v=15"></script>
 </head>
 <body>
   <img class='print-background' src='assets/ghcc-culinary-constellation-bg.png' alt='' aria-hidden='true'>
@@ -79,7 +79,9 @@
         <div id="totalPeriodMetrics" class="metric-grid three"></div>
         <div id="totalPeriodTable"></div>
       </section>
-      <section class="panel glass"><div class="panel-header"><h3>แนวโน้มรายได้รวม</h3><span class="unit">บาท</span></div><div id="totalRevenueTrend" class="chart multi-chart"></div></section>
+      <section class="panel glass"><div class="panel-header"><h3>แนวโน้ม BD &amp; Milk</h3><span class="unit">บาท</span></div><div id="totalFeedingTrend" class="chart multi-chart"></div></section>
+      <section class="panel glass"><div class="panel-header"><h3>แนวโน้มรายได้ต่อวัน</h3><span class="unit">บาท</span></div><div id="totalDailyIncomeTrend" class="chart multi-chart"></div></section>
+      <section class="panel glass"><div class="panel-header"><h3>แนวโน้ม BD+Milk + รายได้ต่อวัน</h3><span class="unit">บาท</span></div><div id="totalRevenueTrend" class="chart multi-chart"></div></section>
     </section>
     <section id="view-feedback" role="tabpanel" aria-labelledby="tab-feedback" hidden><div class="section-heading"><div><h2>Operation Feedback</h2><p>ปัญหา ข้อเสนอแนะ และสถานะการติดตามของวันที่เลือก</p></div></div><div id="feedbackMetrics" class="metric-grid three"></div><section class="panel glass"><h3>บันทึกการปฏิบัติงาน</h3><div id="feedbackTable"></div></section></section>
   </div>
